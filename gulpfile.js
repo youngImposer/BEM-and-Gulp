@@ -18,18 +18,18 @@ const	replace = require("gulp-replace");
 const cache = require("gulp-cache");
 const sourcemaps = require("gulp-sourcemaps");
 const del = require("del");
+
 const browserSync = require("browser-sync").create();
-
-
-
-
 
 
 let params = {
   out: 'build',
-  htmlSrc: 'index.pink.html',
-  levels: ['common.blocks', 'pink.blocks']
+  htmlSrc: 'index.potter.html',
+  levels: ['common.blocks', 'potter.blocks'],
+  cssSrc: ['source/common.blocks/**/*.css', 'source/potter.blocks/**/*.css']
 };
+
+const getFileNames = require('html2bl').getFileNames(params);
 
 // Файлы для подключения в строгом порядке:
 
@@ -42,14 +42,22 @@ let params = {
 
 
 // TASKS
+
 // Task для браузера
 gulp.task('server', function() {
   browserSync.init({
     server: params.out
   });
-  gulp.watch('*.html', gulp.series('html', 'styles')); 
-
+  gulp.watch('*.html', gulp.series('html')); 
+  gulp.watch('./**/*.css', gulp.series('styles'));
+  // gulp.watch(params.levels.map(function(level) {
+  //   var cssGlob = level + '/**/*.css';
+  //   console.log(cssGlob);
+  //   return cssGlob;
+  // }), gulp.series('styles'));
 });
+
+// Task для HTML
 
 gulp.task('html', function() {
   return gulp.src(params.htmlSrc)
@@ -62,13 +70,50 @@ gulp.task('html', function() {
 // Task на стили CSS 
 
 gulp.task('styles', function() {
-  return gulp.src(['source/common.blocks/**/*.css', 'source/pink.blocks/**/*.css'])
+  return gulp.src(params.cssSrc)
   .pipe(concat('styles.css'))
   .pipe(gulp.dest(params.out))
   .pipe(browserSync.stream());
   
+  
 });
 
+// Task для img
+
+gulp.task('images' , function(done) {
+  getFileNames.then(function(source) {
+    gulp.src(source.dirs.map(function(dir) {
+      var imgGlob = path.resolve(dir) + '/*.{jpg, png, svg}';
+      console.log(imgGlob);
+      return imgGlob;
+    }))
+    .pipe(gulp.dest(params.out + 'img'));
+  });
+  done();
+});
+
+// gulp.task('styles', function(done) {
+//   getFileNames.then(function(files) {
+//     // return gulp.src(files.css)
+//     // .pipe(gulp.dest(params.out))
+  
+//   return gulp.src(params.cssSrc)
+   
+//   .pipe(concat('styles.css'))
+//   .pipe(gulp.dest(params.out))
+//   .pipe(browserSync.stream());
+//   });
+//   done();
+  
+// });
+
+
+
+gulp.task('build', gulp.series( 'html', 'styles', 'images'), function(done){
+  done();
+});
+
+gulp.task('default', gulp.series('build', 'server'));
 
 // function styles() {
 //   return gulp.src([
@@ -250,8 +295,3 @@ gulp.task('styles', function() {
 
 
 
-gulp.task("build", gulp.series( "html"), function(done){
-  done();
-});
-
-gulp.task("default", gulp.series("build", "server"));

@@ -196,18 +196,22 @@
 }
 
 .button {
-    border-color: red;
+    border-color: #ce028a;
 }
 
 .button_view_action {
-    background-color: pink;
+    background-color: rgb(170, 46, 184);
 }
 
 .headline {
-    background-color: pink;
+    background: #9D39A9 url(./bg-potter.jpg) no-repeat right top;
 }
 
-.headline__header {
-    color: pink;
+.headline__form {
+    background: rgba(0,0,0,0.3);
 }
 
+.page {
+    font-size: 16px;
+    font-family: Georgia, Times, serif;
+}
